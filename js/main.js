@@ -1,7 +1,10 @@
+
+// global scope variable
 const searchResult = document.getElementById("search-result");
 const bookShow = document.getElementById("book-show");
-// search book
-const searchBook = () => {
+
+// search book name
+const searchBook = async () => {
     searchResult.innerHTML = `
     <div class="h-100 w-100 d-flex justify-content-center align align-items-center">
         <div class="spinner-border" role="status">
@@ -16,39 +19,40 @@ const searchBook = () => {
         searchResult.innerHTML = `<h5 class="w-50 mx-auto text-center text-danger bg-white p-2 rounded">Please! Valid book Name Of Search</h5>`;
         bookShow.innerHTML = '';
     }
-    // console.log(searchText);
     else {
         const url = `https://openlibrary.org/search.json?q=${searchText}`;
         searchField.value = "";
         bookShow.innerHTML = '';
-        fetch(url)
-            .then(res => res.json())
-            .then(data => displaySearchResult(data.docs));
+        const res = await fetch(url);
+        const data = await res.json();
+        displaySearchResult(data);
     }
 }
-// display search result book
+
+// display search result books
 const displaySearchResult = books => {
-    // console.log(books);
+    const totalResult = books.numFound;
+    books = books.docs;
     const arr = books.filter(favourite => favourite.cover_i !== undefined && favourite.author_name !== undefined && favourite.publisher !== undefined && favourite.title !== undefined && favourite.first_publish_year !== undefined);
-    // console.log(arr);
     // error handling validation
     if (arr.length === 0) {
         bookShow.innerHTML = "";
         searchResult.innerHTML = `<h5 class="w-25 mx-auto text-center text-danger bg-white p-2 rounded">No Result Found!</h5>`;
     }
+
     else {
         const p = document.createElement("p");
-        // book show quantity
-        p.innerHTML = `<h5 class="w-25 mx-auto text-center bg-white p-2 rounded text-primary">You got ${arr.length} books</h5>`;
+        // book show total result of book quantity
+        p.innerHTML = `<h5 class="w-25 mx-auto text-center bg-white p-2 rounded text-primary">Total: ${totalResult} You got ${arr.length} books</h5>`;
         bookShow.innerHTML = '';
         bookShow.appendChild(p);
         searchResult.innerHTML = '';
-        books.forEach(book => {
-            // console.log(book);
+        //  foreach of array book
+        arr.forEach(book => {
             const div = document.createElement("div");
             div.classList.add("col");
             div.innerHTML = `
-            <div class="card card-all text-center">
+            <div class="card card-all">
                 <img src="https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg" class="card-img-top img-card" alt="...">
                 <div class="card-body">
                     <h3 class="card-title">${book.title.slice(0, 20)}</h3>
